@@ -64,7 +64,7 @@ public class LittleMaidLoomPlugin implements BootstrappedPlugin {
             try {
                 project.getLogger().lifecycle("read littlemaid-modelloader-url.json from github");
                 String lmmlJson = littleMaidLoomExtension
-                        .download("https://raw.githubusercontent.com/Yukkuritaku/maid-gradle/master/littlemaid-json-data/littlemaid-modelloader-url.json")
+                        .download("https://raw.githubusercontent.com/Yukkuritaku/littlemaid-loom/master/src/main/resources/littlemaid-modelloader-url.json")
                         .downloadString();
                 MaidConstants.LittleMaidJarFileUrls.setLmmlJarUrlMapping(GSON.fromJson(lmmlJson, new TypeToken<>() {
                 }));
@@ -85,7 +85,7 @@ public class LittleMaidLoomPlugin implements BootstrappedPlugin {
             try {
                 project.getLogger().lifecycle("read littlemaid-rebirth-url.json from github");
                 String lmrbJson = littleMaidLoomExtension
-                        .download("https://raw.githubusercontent.com/Yukkuritaku/maid-gradle/master/littlemaid-json-data/littlemaid-rebirth-url.json")
+                        .download("https://raw.githubusercontent.com/Yukkuritaku/littlemaid-loom/master/src/main/resources/littlemaid-rebirth-url.json")
                         .downloadString();
                 MaidConstants.LittleMaidJarFileUrls.setLmrbJarUrlMapping(GSON.fromJson(lmrbJson, new TypeToken<>() {
                 }));
