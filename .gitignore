@@ -48,4 +48,4 @@ bin/
 #Github Environment
 .env
 
-fabric-test
+.idea
