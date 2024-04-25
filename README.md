@@ -1,4 +1,4 @@
-日本語の方のREADMEは[こちら](https://github.com/Yukkuritaku/maid-gradle/blob/master/README_JP.md)
+日本語の方のREADMEは[こちら](https://github.com/Yukkuritaku/littlemaid-loom/blob/master/README_JP.md)
 
 # LittleMaid Loom
 This project is gradle plugin extension of [Fabric Loom](https://github.com/FabricMC/fabric-loom).

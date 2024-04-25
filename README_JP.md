@@ -1,4 +1,4 @@
-English version of Readme is [here](https://github.com/Yukkuritaku/maid-gradle/blob/master/README.md).
+English version of Readme is [here](https://github.com/Yukkuritaku/littlemaid-loom/blob/master/README.md).
 
 # Maid Gradle
 
