@@ -8,7 +8,7 @@ plugins {
 
 group = "io.github.yukkuritaku"
 val archiveName = "littlemaid-loom"
-version = "1.0.1"
+version = "1.0.2"
 
 val functionalTest = sourceSets.create("functionalTest")
 

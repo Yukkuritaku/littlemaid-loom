@@ -23,6 +23,9 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiPredicate;
 import java.util.stream.Stream;
@@ -47,10 +50,14 @@ public abstract class BuildLittleMaidModelTask extends AbstractMaidTask {
         getOutputDir().convention(getProject().getLayout().getBuildDirectory().dir("littlemaidmodel-build"));
     }
 
-    private void checkUseNtfs(ZipArchiveEntry entry) throws InstantiationException, IllegalAccessException {
+    private void putNtfs(ZipArchiveEntry entry) throws InstantiationException, IllegalAccessException {
         if (this.extension.getZipConfig().getUseNtfs().get()){
             entry.addExtraField(ExtraFieldUtils.createExtraField(X000A_NTFS.HEADER_ID));
         }
+        var fileTime = FileTime.from(Instant.now(Clock.systemUTC()));
+        entry.setCreationTime(fileTime);
+        entry.setTime(fileTime);
+        entry.setLastAccessTime(fileTime);
     }
 
     private void setMethod(File file, ZipArchiveEntry entry) throws IOException {
@@ -117,16 +124,16 @@ public abstract class BuildLittleMaidModelTask extends AbstractMaidTask {
                     if (Files.isDirectory(p)) {
                         ZipArchiveEntry entry = new ZipArchiveEntry(pathName + "/");
                         setMethod(p.toFile(), entry);
-                        checkUseNtfs(entry);
+                        putNtfs(entry);
                         zos.putArchiveEntry(entry);
                         zos.closeArchiveEntry();
                         zipDirectory(rootCount, p, zos);
                     } else {
                         var zipEntry = new ZipArchiveEntry(pathName.toString());
                         setMethod(p.toFile(), zipEntry);
-                        checkUseNtfs(zipEntry);
+                        putNtfs(zipEntry);
                         zos.putArchiveEntry(zipEntry);
-                        org.apache.commons.io.IOUtils.copy(new FileInputStream(p.toFile()), zos);
+                        IOUtils.copy(new FileInputStream(p.toFile()), zos);
                         zos.closeArchiveEntry();
                     }
                 } catch (IOException | InstantiationException | IllegalAccessException e) {
@@ -144,9 +151,9 @@ public abstract class BuildLittleMaidModelTask extends AbstractMaidTask {
             zos.setLevel(this.extension.getZipConfig().getCompressionLevel().get());
             try {
                 ZipArchiveEntry archiveEntry = new ZipArchiveEntry(this.extension.getReadMeFile().get());
-                checkUseNtfs(archiveEntry);
+                putNtfs(archiveEntry);
                 zos.putArchiveEntry(archiveEntry);
-                org.apache.commons.io.IOUtils.copy(new FileInputStream(getProject().getLayout().getProjectDirectory().file(this.extension.getReadMeFile()).get().getAsFile()), zos);
+                IOUtils.copy(new FileInputStream(getProject().getLayout().getProjectDirectory().file(this.extension.getReadMeFile()).get().getAsFile()), zos);
                 zos.closeArchiveEntry();
             }catch (IOException | InstantiationException | IllegalAccessException e){
                 throw new RuntimeException(e);
@@ -163,7 +170,7 @@ public abstract class BuildLittleMaidModelTask extends AbstractMaidTask {
                                 try {
                                     ZipArchiveEntry archiveEntry = new ZipArchiveEntry(file.toPath().getFileName().toString());
                                     setMethod(file, archiveEntry);
-                                    checkUseNtfs(archiveEntry);
+                                    putNtfs(archiveEntry);
                                     zos.putArchiveEntry(archiveEntry);
                                     IOUtils.copy(new FileInputStream(file), zos);
                                     zos.closeArchiveEntry();
