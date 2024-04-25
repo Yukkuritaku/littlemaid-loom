@@ -48,4 +48,4 @@ bin/
 #Github Environment
 .env
 
-.idea
+.idea/
