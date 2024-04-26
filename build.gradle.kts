@@ -112,10 +112,26 @@ publishing{
 }
 
 signing{
-    useInMemoryPgpKeys(
-        providers.gradleProperty("signingKey").orNull,
-        providers.gradleProperty("signingPassword").orNull
-    )
+    val privateKeyTextFile = file("secret/privatekey.txt")
+    val passwordTextFile = file("secret/password.txt")
+    var privateKey = ""
+    var password = ""
+    if (privateKeyTextFile.exists()){
+        privateKey = privateKeyTextFile.readText()
+    }
+    if (passwordTextFile.exists()){
+        password = passwordTextFile.readText()
+    }
+    useInMemoryPgpKeys(privateKey, password)
+    // gradleがエラーになるから使えない
+    /*useInMemoryPgpKeys(
+        providers.fileContents {
+            file("secret/privatekey.txt")
+        }.asText.orNull,
+        providers.fileContents {
+            file("secret/password.txt")
+        }.asText.orNull
+    )*/
 }
 
 idea{
