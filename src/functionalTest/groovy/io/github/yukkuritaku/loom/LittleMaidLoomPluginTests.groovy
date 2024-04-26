@@ -6,6 +6,7 @@ import org.gradle.testkit.runner.GradleRunner
 import org.slf4j.LoggerFactory
 
 class LittleMaidLoomPluginTests extends SimpleTestSpecification{
+    private static final String LITTLEMAID_LOOM_VERSION = "1.0.3"
 
     protected File readMeFile
 
@@ -28,7 +29,7 @@ class LittleMaidLoomPluginTests extends SimpleTestSpecification{
                 }
                 dependencies {
                     classpath group: "net.fabricmc", name: "fabric-loom", version: "1.6-SNAPSHOT"
-                    classpath group: "io.github.yukkuritaku.littlemaid-loom", name: "io.github.yukkuritaku.littlemaid-loom.gradle.plugin", version: "1.0"
+                    classpath group: "io.github.yukkuritaku.littlemaid-loom", name: "io.github.yukkuritaku.littlemaid-loom.gradle.plugin", version: "${LITTLEMAID_LOOM_VERSION}"
                 }
             }
 

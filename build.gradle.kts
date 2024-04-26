@@ -1,9 +1,9 @@
 plugins {
     idea
     groovy
+    signing
     id("java-gradle-plugin")
-    id("maven-publish")
-    //id 'com.gradle.plugin-publish' version '1.2.1'
+    id("com.gradle.plugin-publish") version "1.2.1"
 }
 
 group = "io.github.yukkuritaku"
@@ -76,8 +76,8 @@ dependencies {
 }
 
 gradlePlugin {
-    website = "https://github.com/Yukkuritaku/maid-gradle"
-    vcsUrl = "https://github.com/Yukkuritaku/maid-gradle.git"
+    website = "https://github.com/Yukkuritaku/littlemaid-loom"
+    vcsUrl = "https://github.com/Yukkuritaku/littlemaid-loom.git"
     plugins {
         register(archiveName){
             id = "io.github.yukkuritaku.${archiveName}"
@@ -92,7 +92,7 @@ gradlePlugin {
 
 java {
     withSourcesJar()
-    //withJavadocJar()
+    withJavadocJar()
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
@@ -109,6 +109,13 @@ publishing{
     /*repositories {
         maven("file://${layout.buildDirectory.get().asFile.path}/repo")
     }*/
+}
+
+signing{
+    useInMemoryPgpKeys(
+        providers.gradleProperty("signingKey").orNull,
+        providers.gradleProperty("signingPassword").orNull
+    )
 }
 
 idea{
