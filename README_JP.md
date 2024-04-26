@@ -1,13 +1,13 @@
 English version of Readme is [here](https://github.com/Yukkuritaku/littlemaid-loom/blob/master/README.md).
 
-# Maid Gradle
+# Little Maid Loom
 
 このプロジェクトは[Fabric Loom](https://github.com/FabricMC/fabric-loom)の拡張プラグインです。
 
 現在導入しているタスクはメイドさんのjarダウンロードと、zipビルドです。
 
 ## タスク紹介
-タスクグループは`maidgradle`にあります。
+タスクグループは`littlemaid loom`にあります。
 
 - `buildLittleMaidModel`: メイドさんのモデルをビルドします。(build/classesの中にあるファイルとbuild/resourcesの中にあるファイルをzip化します。)
 - `downloadLittleMaidJars`: リトルメイドModのJarファイルをダウンロードします。
@@ -15,70 +15,26 @@ English version of Readme is [here](https://github.com/Yukkuritaku/littlemaid-lo
 (このタスクはプロジェクトをリロードした時に自動で実行されます。)
 
 ## 導入方法
+作成中...
 
-`settings.gradle`のpluginManagementにリポジトリとスクリプトを追加します。 
-```gradle
-pluginManagement {
-    repositories {
-        // jitpackを追加する
-        maven { url = 'https://jitpack.io' }
-        // ...
-    }
-    // これを追加しないとダウンロード出来ない
-    resolutionStrategy {
-        eachPlugin {
-            switch (requested.id.toString()) {
-                case "io.github.yukkuritaku.maid-gradle": {
-                    useModule("com.github.Yukkuritaku.maid-gradle:io.github.yukkuritaku.maid-gradle.gradle.plugin:${requested.version}")
-                    break
-                }
-                default: break
-            }
-        }
-    }
-}
-```
-`build.gradle`のプラグインの`fabric-loom`の下に`io.github.yukkuritaku.maid-gradle`を追加し、maidgradleの設定を追加します。
-```gradle
-plugins{
-    id 'fabric-loom' version '1.4-SNAPSHOT'
-    // 適用するにはfabric-loomの下に設定する必要があります。
-    id 'io.github.yukkuritaku.maid-gradle' version '(使いたいバージョン)'
-    id 'maven-publish'
-}
+## LittleMaid Loomの全体設定
 
-maidgradle {
-    // マイクラバージョン
+```gradle
+littlemaidloom {
+    // マイクラバージョン (必須)
     minecraftVersion("(使用したいマイクラバージョン)")
     
-    // LittleMaidModelLoaderのバージョン
+    // LittleMaidModelLoaderのバージョン (必須)
     littleMaidModelLoaderVersion("(使用したいLittleMaidModelLoaderのバージョン)")
     
-    // LittleMaidReBirthのバージョン
+    // LittleMaidReBirthのバージョン (必須)
     littleMaidReBirthVersion("(使用したいLittleMaidReBirthのバージョン)")
     
-    // りーどみーファイルの指定(拡張子まで一致させる必要があるよ)
-    readMeFile("LittleMaidModel_Readme.txt")
-}
-```
-後はプロジェクトをリロードすれば完了です！
-
-## maidgradleの全体設定
-
-```gradle
-maidgradle {
-    // マイクラバージョン
-    minecraftVersion("(使用したいマイクラバージョン)")
-    
-    // LittleMaidModelLoaderのバージョン
-    littleMaidModelLoaderVersion("(使用したいLittleMaidModelLoaderのバージョン)")
-    
-    // LittleMaidReBirthのバージョン
-    littleMaidReBirthVersion("(使用したいLittleMaidReBirthのバージョン)")
-    
-    // りーどみーファイルの指定(拡張子まで一致させる必要があるよ)
+    // りーどみーファイルの指定(拡張子まで一致させる必要があるよ) (必須)
+    // ファイルが見つからないとbuildLittleMaidModelを実行したときにエラーになります。
     readMeFile("LittleMaidModel_Readme.txt")
     
+    // buildLittleMaidModelのzip設定 (任意)
     zipConfig {
        /*
         * ファイル、フォルダーをntfsでzip化するか
