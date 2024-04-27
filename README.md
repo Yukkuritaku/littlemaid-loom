@@ -5,6 +5,63 @@ This project is gradle plugin extension of [Fabric Loom](https://github.com/Fabr
 
 Currently, implemented task is zip building and download jar.
 
+## How to include
+
+<details><summary>build.gradle</summary>
+
+```gradle
+plugins {
+	id 'fabric-loom' version '1.6-SNAPSHOT'
+	// Must be included below fabric-loom
+	id 'io.github.yukkuritaku.littlemaid-loom' version '(LittleMaid Loom Version here)'
+	id 'maven-publish'
+}
+
+littlemaidloom {
+    // Minecraft version
+    minecraftVersion("(Minecraft version)")
+    
+    // LittleMaidModelLoader version
+    littleMaidModelLoaderVersion("(LittleMaidModelLoader version)")
+    
+    // LittleMaidReBirth version
+    littleMaidReBirthVersion("(LittleMaidReBirth version)")
+   
+    // Readme file
+    readMeFile("Your Readme file")
+}
+```
+
+</details>
+
+
+<details><summary>build.gradle.kts</summary>
+
+```kts
+plugins {
+	id("fabric-loom") version "1.6-SNAPSHOT"
+	// Must be included below fabric-loom
+	id("io.github.yukkuritaku.littlemaid-loom") version "(LittleMaid Loom Version here)"
+	id("maven-publish")
+}
+
+littlemaidloom {
+    // Minecraft version
+    minecraftVersion("(Minecraft version)")
+    
+    // LittleMaidModelLoader version
+    littleMaidModelLoaderVersion("(LittleMaidModelLoader version)")
+    
+    // LittleMaidReBirth version
+    littleMaidReBirthVersion("(LittleMaidReBirth version)")
+   
+    // Readme file
+    readMeFile("Your Readme file")
+}
+```
+
+</details>
+
 ## Tasks
 Task groups are included in `littlemaid loom`.
 

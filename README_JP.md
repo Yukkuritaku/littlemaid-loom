@@ -1,6 +1,6 @@
 English version of Readme is [here](https://github.com/Yukkuritaku/littlemaid-loom/blob/master/README.md).
 
-# Little Maid Loom
+# LittleMaid Loom
 
 このプロジェクトは[Fabric Loom](https://github.com/FabricMC/fabric-loom)の拡張プラグインです。
 
