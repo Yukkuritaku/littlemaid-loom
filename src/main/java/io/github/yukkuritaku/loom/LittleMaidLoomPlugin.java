@@ -19,6 +19,7 @@ import net.fabricmc.loom.util.service.ScopedSharedServiceManager;
 import net.fabricmc.loom.util.service.SharedServiceManager;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.tasks.TaskContainer;
 
@@ -44,10 +45,11 @@ public class LittleMaidLoomPlugin implements BootstrappedPlugin {
             final LittleMaidLoomExtension littleMaidLoomExtension = project.getExtensions().create("littlemaidloom", LittleMaidLoomExtension.class, project);
             final TaskContainer tasks = project.getTasks();
             //Tasks
-            tasks.register("buildLittleMaidModel", BuildLittleMaidModelTask.class, task -> {
+            var buildLittleMaidModel = tasks.register("buildLittleMaidModel", BuildLittleMaidModelTask.class, task -> {
                 task.dependsOn(tasks.named("jar"));
                 task.setDescription("Build LittleMaid Model.");
             });
+            project.getTasks().named(BasePlugin.ASSEMBLE_TASK_NAME).configure(task -> task.dependsOn(buildLittleMaidModel));
             var downloadLittleMaidJars = tasks.register("downloadLittleMaidJars", DownloadLittleMaidJarTask.class,
                     task -> task.setDescription("Download LittleMaid Jar from dropbox. (This task is automatically runs in gradle configuration)"));
             downloadLittleMaidJars.configure(downloadLittleMaidJarTask -> {

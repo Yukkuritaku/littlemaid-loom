@@ -37,9 +37,9 @@ public abstract class LittleMaidLoomExtension extends GroovyObjectSupport{
         this.zipConfig.getCompressionLevel().convention(Deflater.DEFAULT_COMPRESSION);
         this.zipConfig.getPngZipMode().convention(ZipEntry.STORED);
         this.zipConfig.getFolderZipMode().convention(ZipEntry.STORED);
-        getLMMLOutputDirectory().convention(project.getObjects().directoryProperty().convention(project.getLayout().getBuildDirectory().dir("lmml-jar")));
-        getLMRBOutputDirectory().convention(project.getObjects().directoryProperty().convention(project.getLayout().getBuildDirectory().dir("lmrb-jar")));
-        getReadMeFile().convention("LittleMaidModel_ReadMe.txt");
+        this.getLMMLOutputDirectory().convention(project.getObjects().directoryProperty().convention(project.getLayout().getBuildDirectory().dir("lmml-jar")));
+        this.getLMRBOutputDirectory().convention(project.getObjects().directoryProperty().convention(project.getLayout().getBuildDirectory().dir("lmrb-jar")));
+        this.getReadMeFile().convention("LittleMaidModel_ReadMe.txt");
     }
 
     private boolean manualRefreshDeps() {
