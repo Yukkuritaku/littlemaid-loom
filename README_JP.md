@@ -15,7 +15,61 @@ English version of Readme is [here](https://github.com/Yukkuritaku/littlemaid-lo
 (このタスクはプロジェクトをリロードした時に自動で実行されます。)
 
 ## 導入方法
-作成中...
+モデルを作りたい場合、[テンプレートのプロジェクト](https://github.com/Yukkuritaku/LittleMaidModelProject-Template)を使用することを推奨します。
+<details><summary>build.gradle</summary>
+
+```gradle
+plugins {
+	id 'fabric-loom' version '1.6-SNAPSHOT'
+	// Must be included below fabric-loom
+	id 'io.github.yukkuritaku.littlemaid-loom' version '(LittleMaid Loom Version here)'
+	id 'maven-publish'
+}
+
+littlemaidloom {
+    // Minecraft version
+    minecraftVersion("(Minecraft version)")
+    
+    // LittleMaidModelLoader version
+    littleMaidModelLoaderVersion("(LittleMaidModelLoader version)")
+    
+    // LittleMaidReBirth version
+    littleMaidReBirthVersion("(LittleMaidReBirth version)")
+   
+    // Readme file
+    readMeFile("Your Readme file")
+}
+```
+
+</details>
+
+
+<details><summary>build.gradle.kts</summary>
+
+```kts
+plugins {
+	id("fabric-loom") version "1.6-SNAPSHOT"
+	// Must be included below fabric-loom
+	id("io.github.yukkuritaku.littlemaid-loom") version "(LittleMaid Loom Version here)"
+	id("maven-publish")
+}
+
+littlemaidloom {
+    // Minecraft version
+    minecraftVersion("(Minecraft version)")
+    
+    // LittleMaidModelLoader version
+    littleMaidModelLoaderVersion("(LittleMaidModelLoader version)")
+    
+    // LittleMaidReBirth version
+    littleMaidReBirthVersion("(LittleMaidReBirth version)")
+   
+    // Readme file
+    readMeFile("Your Readme file")
+}
+```
+
+</details>
 
 ## LittleMaid Loomの全体設定
 

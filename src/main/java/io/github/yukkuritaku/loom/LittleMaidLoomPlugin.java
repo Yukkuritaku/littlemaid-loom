@@ -105,10 +105,14 @@ public class LittleMaidLoomPlugin implements BootstrappedPlugin {
 
             //ファイルがない場合に新しく作る
             if (!littleMaidLoomExtension.getLMMLOutputDirectory().get().getAsFile().exists()) {
-                littleMaidLoomExtension.getLMMLOutputDirectory().get().getAsFile().mkdir();
+                if(littleMaidLoomExtension.getLMMLOutputDirectory().get().getAsFile().mkdir()){
+                    project.getLogger().lifecycle("LMML jar Output Directory created in {}", littleMaidLoomExtension.getLMMLOutputDirectory().get().getAsFile().toString());
+                }
             }
             if (!littleMaidLoomExtension.getLMRBOutputDirectory().get().getAsFile().exists()) {
-                littleMaidLoomExtension.getLMRBOutputDirectory().get().getAsFile().mkdir();
+                if(littleMaidLoomExtension.getLMRBOutputDirectory().get().getAsFile().mkdir()){
+                    project.getLogger().lifecycle("LMRB jar Output Directory created in {}", littleMaidLoomExtension.getLMRBOutputDirectory().get().getAsFile().toString());
+                }
             }
 
             afterEvaluationWithService(project, sharedServiceManager -> {

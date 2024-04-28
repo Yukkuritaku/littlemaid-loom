@@ -7,6 +7,8 @@ Currently, implemented task is zip building and download jar.
 
 ## How to include
 
+If you want to create a model, we recommend using a [template project](https://github.com/Yukkuritaku/LittleMaidModelProject-Template).
+
 <details><summary>build.gradle</summary>
 
 ```gradle
