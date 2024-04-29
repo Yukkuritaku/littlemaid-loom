@@ -21,7 +21,7 @@ val functionalTestTask = tasks.register<Test>("functionalTest"){
 }
 
 tasks.named("check"){
-    dependsOn(functionalTestTask)
+    dependsOn(functionalTestTask, "publishToMavenLocal")
 }
 
 val generateJsonTask = tasks.register<JavaExec>("generateJson"){
