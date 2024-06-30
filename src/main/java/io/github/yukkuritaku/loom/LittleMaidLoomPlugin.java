@@ -12,13 +12,19 @@ import net.fabricmc.loom.LoomGradleExtension;
 import net.fabricmc.loom.api.RemapConfigurationSettings;
 import net.fabricmc.loom.bootstrap.BootstrappedPlugin;
 import net.fabricmc.loom.configuration.LoomDependencyManager;
+import net.fabricmc.loom.util.Checksum;
+import net.fabricmc.loom.util.ExceptionUtil;
+import net.fabricmc.loom.util.ProcessUtil;
 import net.fabricmc.loom.util.download.DownloadException;
 import net.fabricmc.loom.util.gradle.GradleUtils;
 import net.fabricmc.loom.util.gradle.SourceSetHelper;
 import net.fabricmc.loom.util.service.ScopedSharedServiceManager;
 import net.fabricmc.loom.util.service.SharedServiceManager;
 import org.apache.commons.io.IOUtils;
+import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.tasks.TaskContainer;
@@ -28,7 +34,9 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class LittleMaidLoomPlugin implements BootstrappedPlugin {
@@ -154,8 +162,9 @@ public class LittleMaidLoomPlugin implements BootstrappedPlugin {
                     remapConfigurationSettings.getPublishingMode().convention(RemapConfigurationSettings.PublishingMode.RUNTIME_ONLY);
                 });
                 final boolean previousRefreshDeps = extension.refreshDeps();
-                if (getAndLock(project)) {
-                    project.getLogger().lifecycle("Found existing cache lock file, rebuilding loom cache. This may have been caused by a failed or canceled build.");
+                final LockResult lockResult = acquireProcessLockWaiting(project, getLockFile(project));
+                if (lockResult != LockResult.ACQUIRED_CLEAN) {
+                    project.getLogger().lifecycle("Found existing cache lock file ({}), rebuilding loom cache. This may have been caused by a failed or canceled build.", lockResult);
                     extension.setRefreshDeps(true);
                 }
                 project.getRepositories().add(project.getRepositories().flatDir(flatDirectoryArtifactRepository -> {
@@ -180,7 +189,10 @@ public class LittleMaidLoomPlugin implements BootstrappedPlugin {
                     if (project.file(lmrbOutputDir + "/" + lmrbFileName).exists()) {
                         project.getDependencies().add(MaidConstants.Configurations.MOD_LITTLE_MAID_REBIRTH, MaidConstants.Dependencies.getLittleMaidReBirth(project));
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    ExceptionUtil.processException(e, project);
+                    disownLock(project);
+                    throw ExceptionUtil.createDescriptiveWrapper(RuntimeException::new, "Failed to setup LittleMaid Dependencies", e);
                 }
                 LoomDependencyManager dependencyManager = new LoomDependencyManager();
                 extension.setDependencyManager(dependencyManager);
@@ -205,34 +217,167 @@ public class LittleMaidLoomPlugin implements BootstrappedPlugin {
         project.getConfigurations().getByName(a, configuration -> configuration.extendsFrom(project.getConfigurations().getByName(b)));
     }
 
-    private Path getLockFile(Project project) {
+    //
+    // these below codes are copied from net.fabricmc.loom.configuration.CompileConfiguration
+    //
+
+    private LockFile getLockFile(Project project) {
         final LoomGradleExtension extension = LoomGradleExtension.get(project);
         final Path cacheDirectory = extension.getFiles().getUserCache().toPath();
-        //final String pathHash = Checksum.projectHash(project);
-        return cacheDirectory.resolve("." + "maid-gradle" + ".lock");
+        final String pathHash = Checksum.projectHash(project);
+        return new LockFile(
+                cacheDirectory.resolve("." + pathHash + "_littlemaid-loom" + ".lock"),
+                "Lock for cache='%s', project='%s'".formatted(
+                        cacheDirectory, project.absoluteProjectPath(project.getPath())
+                )
+        );
     }
 
-    private boolean getAndLock(Project project) {
-        final Path lock = getLockFile(project);
-
-        if (Files.exists(lock)) {
-            return true;
+    record LockFile(Path file, String description) {
+        @Override
+        public String toString() {
+            return this.description;
         }
+    }
+
+    enum LockResult {
+        // acquired immediately or after waiting for another process to release
+        ACQUIRED_CLEAN,
+        // already owned by current pid
+        ACQUIRED_ALREADY_OWNED,
+        // acquired due to current owner not existing
+        ACQUIRED_PREVIOUS_OWNER_MISSING,
+        // acquired due to previous owner disowning the lock
+        ACQUIRED_PREVIOUS_OWNER_DISOWNED
+    }
+
+    private LockResult acquireProcessLockWaiting(Project project, LockFile lockFile) {
+        // one hour
+        return this.acquireProcessLockWaiting(project, lockFile, getDefaultTimeout());
+    }
+
+    private LockResult acquireProcessLockWaiting(Project project, LockFile lockFile, Duration timeout) {
+        try {
+            return this.acquireProcessLockWaiting_(project, lockFile, timeout);
+        } catch (final IOException e) {
+            throw new RuntimeException("Exception acquiring lock " + lockFile, e);
+        }
+    }
+
+    // Returns true if our process already owns the lock
+    @SuppressWarnings("BusyWait")
+    private LockResult acquireProcessLockWaiting_(Project project, LockFile lockFile, Duration timeout) throws IOException {
+        final long timeoutMs = timeout.toMillis();
+        final Logger logger = Logging.getLogger("loom_acquireProcessLockWaiting");
+        final long currentPid = ProcessHandle.current().pid();
+        boolean abrupt = false;
+        boolean disowned = false;
+
+        if (Files.exists(lockFile.file)) {
+            long lockingProcessId = -1;
+
+            try {
+                String lockValue = Files.readString(lockFile.file);
+
+                if ("disowned".equals(lockValue)) {
+                    disowned = true;
+                } else {
+                    lockingProcessId = Long.parseLong(lockValue);
+                    logger.lifecycle("\"{}\" is currently held by pid '{}'.", lockFile, lockingProcessId);
+                }
+            } catch (final Exception ignored) {
+                // ignored
+            }
+
+            if (lockingProcessId == currentPid) {
+                return LockResult.ACQUIRED_ALREADY_OWNED;
+            }
+
+            Optional<ProcessHandle> handle = ProcessHandle.of(lockingProcessId);
+
+            if (disowned) {
+                logger.lifecycle("Previous process has disowned the lock due to abrupt termination.");
+                Files.deleteIfExists(lockFile.file);
+            } else if (handle.isEmpty()) {
+                logger.lifecycle("Locking process does not exist, assuming abrupt termination and deleting lock file.");
+                Files.deleteIfExists(lockFile.file);
+                abrupt = true;
+            } else {
+                ProcessUtil processUtil = ProcessUtil.create(project);
+                logger.lifecycle(processUtil.printWithParents(handle.get()));
+                logger.lifecycle("Waiting for lock to be released...");
+                long sleptMs = 0;
+
+                while (Files.exists(lockFile.file)) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (final InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+
+                    sleptMs += 100;
+
+                    if (sleptMs >= 1000 * 60 && sleptMs % (1000 * 60) == 0L) {
+                        logger.lifecycle(
+                                """
+                                        Have been waiting on "{}" held by pid '{}' for {} minute(s).
+                                        If this persists for an unreasonable length of time, kill this process, run './gradlew --stop' and then try again.""",
+                                lockFile, lockingProcessId, sleptMs / 1000 / 60
+                        );
+                    }
+
+                    if (sleptMs >= timeoutMs) {
+                        throw new GradleException("Have been waiting on lock file '%s' for %s ms. Giving up as timeout is %s ms."
+                                .formatted(lockFile, sleptMs, timeoutMs));
+                    }
+                }
+            }
+        }
+
+        if (!Files.exists(lockFile.file.getParent())) {
+            Files.createDirectories(lockFile.file.getParent());
+        }
+
+        Files.writeString(lockFile.file, String.valueOf(currentPid));
+
+        if (disowned) {
+            return LockResult.ACQUIRED_PREVIOUS_OWNER_DISOWNED;
+        } else if (abrupt) {
+            return LockResult.ACQUIRED_PREVIOUS_OWNER_MISSING;
+        }
+
+        return LockResult.ACQUIRED_CLEAN;
+    }
+
+    private static Duration getDefaultTimeout() {
+        if (System.getenv("CI") != null) {
+            // Set a small timeout on CI, as it's unlikely going to unlock.
+            return Duration.ofMinutes(1);
+        }
+
+        return Duration.ofHours(1);
+    }
+
+    // When we fail to configure, write "disowned" to the lock file to release it from this process
+    // This allows the next run to rebuild without waiting for this process to exit
+    private void disownLock(Project project) {
+        final Path lock = getLockFile(project).file;
 
         try {
-            Files.createFile(lock);
+            Files.writeString(lock, "disowned");
         } catch (IOException e) {
-            throw new UncheckedIOException("Failed to acquire getProject() configuration lock", e);
+            throw new RuntimeException(e);
         }
-
-        return false;
     }
 
     private void releaseLock(Project project) {
-        final Path lock = getLockFile(project);
+        final Path lock = getLockFile(project).file;
+
+
         if (!Files.exists(lock)) {
             return;
         }
+
         try {
             Files.delete(lock);
         } catch (IOException e1) {
@@ -247,6 +392,10 @@ public class LittleMaidLoomPlugin implements BootstrappedPlugin {
                 throw exception;
             }
         }
+    }
+
+    private void finalizedBy(Project project, String a, String b) {
+        project.getTasks().named(a).configure(task -> task.finalizedBy(project.getTasks().named(b)));
     }
 
     private void afterEvaluationWithService(Project project, Consumer<SharedServiceManager> consumer) {

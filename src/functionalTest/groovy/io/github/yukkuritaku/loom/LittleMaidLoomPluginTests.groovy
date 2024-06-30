@@ -6,7 +6,7 @@ import org.gradle.testkit.runner.GradleRunner
 import org.slf4j.LoggerFactory
 
 class LittleMaidLoomPluginTests extends SimpleTestSpecification{
-    private static final String LITTLEMAID_LOOM_VERSION = "1.0.3"
+    private static final String LITTLEMAID_LOOM_VERSION = "1.0.4"
 
     protected File readMeFile
 
@@ -28,7 +28,7 @@ class LittleMaidLoomPluginTests extends SimpleTestSpecification{
                     gradlePluginPortal()
                 }
                 dependencies {
-                    classpath group: "net.fabricmc", name: "fabric-loom", version: "1.6-SNAPSHOT"
+                    classpath group: "net.fabricmc", name: "fabric-loom", version: "1.7-SNAPSHOT"
                     classpath group: "io.github.yukkuritaku.littlemaid-loom", name: "io.github.yukkuritaku.littlemaid-loom.gradle.plugin", version: "${LITTLEMAID_LOOM_VERSION}"
                 }
             }
@@ -38,8 +38,8 @@ class LittleMaidLoomPluginTests extends SimpleTestSpecification{
 
             littlemaidloom {
                 minecraftVersion("1.20.2")
-                littleMaidModelLoaderVersion("9.0.1")
-                littleMaidReBirthVersion("9.0.1")
+                littleMaidModelLoaderVersion("9.0.2")
+                littleMaidReBirthVersion("9.1.3")
                 readMeFile("LittleMaidModel_Readme.txt")
             }
             
@@ -77,7 +77,7 @@ class LittleMaidLoomPluginTests extends SimpleTestSpecification{
                 .withPluginClasspath()
                 .withProjectDir(testProjectDir)
                 .withDebug(DEBUG)
-                .withGradleVersion('8.7')
+                .withGradleVersion('8.8')
                 .forwardStdOutput(new LoggerWriter(logger, LoggerWriter.Level.INFO))
                 .forwardStdError(new LoggerWriter(logger, LoggerWriter.Level.ERROR))
 

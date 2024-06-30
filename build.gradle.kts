@@ -8,7 +8,7 @@ plugins {
 
 group = "io.github.yukkuritaku"
 val archiveName = "littlemaid-loom"
-version = "1.0.3"
+version = "1.0.4"
 
 val functionalTest = sourceSets.create("functionalTest")
 
@@ -35,7 +35,7 @@ tasks.named("assemble"){
 }
 
 tasks.withType(JavaCompile::class).configureEach {
-    options.release.set(17)
+    options.release.set(21)
     options.encoding = "UTF-8"
 }
 
@@ -60,7 +60,7 @@ val loom: Configuration by configurations.creating{
 
 dependencies {
     implementation(gradleApi())
-    loom("net.fabricmc:fabric-loom:1.6-SNAPSHOT")
+    loom("net.fabricmc:fabric-loom:1.7-SNAPSHOT")
     // https://mvnrepository.com/artifact/org.apache.commons/commons-compress
     implementation("org.apache.commons:commons-compress:1.26.1")
     implementation("com.google.code.gson:gson:2.10.1")
@@ -93,8 +93,8 @@ gradlePlugin {
 java {
     withSourcesJar()
     withJavadocJar()
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 publishing{

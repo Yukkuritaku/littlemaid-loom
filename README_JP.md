@@ -20,24 +20,24 @@ English version of Readme is [here](https://github.com/Yukkuritaku/littlemaid-lo
 
 ```gradle
 plugins {
-	id 'fabric-loom' version '1.6-SNAPSHOT'
-	// Must be included below fabric-loom
-	id 'io.github.yukkuritaku.littlemaid-loom' version '(LittleMaid Loom Version here)'
+	id 'fabric-loom' version '1.7-SNAPSHOT'
+	// fabric-loomの下に追加してください。
+	id 'io.github.yukkuritaku.littlemaid-loom' version '(LittleMaid Loomのバージョン)'
 	id 'maven-publish'
 }
 
 littlemaidloom {
-    // Minecraft version
-    minecraftVersion("(Minecraft version)")
+    // マイクラのバージョン
+    minecraftVersion("(マイクラのバージョン)")
     
-    // LittleMaidModelLoader version
-    littleMaidModelLoaderVersion("(LittleMaidModelLoader version)")
+    // LittleMaidModelLoaderのバージョン
+    littleMaidModelLoaderVersion("(LittleMaidModelLoaderのバージョン)")
     
-    // LittleMaidReBirth version
-    littleMaidReBirthVersion("(LittleMaidReBirth version)")
+    // LittleMaidReBirthのバージョン
+    littleMaidReBirthVersion("(LittleMaidReBirthのバージョン)")
    
-    // Readme file
-    readMeFile("Your Readme file")
+    // Readmeのファイル
+    readMeFile("(Readmeのファイル名)")
 }
 ```
 
@@ -48,24 +48,24 @@ littlemaidloom {
 
 ```kts
 plugins {
-	id("fabric-loom") version "1.6-SNAPSHOT"
-	// Must be included below fabric-loom
-	id("io.github.yukkuritaku.littlemaid-loom") version "(LittleMaid Loom Version here)"
+	id("fabric-loom") version "1.7-SNAPSHOT"
+    // fabric-loomの下に追加してください。
+	id("io.github.yukkuritaku.littlemaid-loom") version "(LittleMaid Loomのバージョン)"
 	id("maven-publish")
 }
 
 littlemaidloom {
-    // Minecraft version
-    minecraftVersion("(Minecraft version)")
-    
-    // LittleMaidModelLoader version
-    littleMaidModelLoaderVersion("(LittleMaidModelLoader version)")
-    
-    // LittleMaidReBirth version
-    littleMaidReBirthVersion("(LittleMaidReBirth version)")
-   
-    // Readme file
-    readMeFile("Your Readme file")
+    // マイクラのバージョン
+    minecraftVersion("(マイクラのバージョン)")
+
+    // LittleMaidModelLoaderのバージョン
+    littleMaidModelLoaderVersion("(LittleMaidModelLoaderのバージョン)")
+
+    // LittleMaidReBirthのバージョン
+    littleMaidReBirthVersion("(LittleMaidReBirthのバージョン)")
+
+    // Readmeのファイル
+    readMeFile("(Readmeのファイル名)")
 }
 ```
 

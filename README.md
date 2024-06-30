@@ -13,7 +13,7 @@ If you want to create a model, we recommend using a [template project](https://g
 
 ```gradle
 plugins {
-	id 'fabric-loom' version '1.6-SNAPSHOT'
+	id 'fabric-loom' version '1.7-SNAPSHOT'
 	// Must be included below fabric-loom
 	id 'io.github.yukkuritaku.littlemaid-loom' version '(LittleMaid Loom Version here)'
 	id 'maven-publish'
@@ -41,7 +41,7 @@ littlemaidloom {
 
 ```kts
 plugins {
-	id("fabric-loom") version "1.6-SNAPSHOT"
+	id("fabric-loom") version "1.7-SNAPSHOT"
 	// Must be included below fabric-loom
 	id("io.github.yukkuritaku.littlemaid-loom") version "(LittleMaid Loom Version here)"
 	id("maven-publish")
