@@ -8,7 +8,7 @@ plugins {
 
 group = "io.github.yukkuritaku"
 val archiveName = "littlemaid-loom"
-version = "1.0.4"
+version = "1.0.5"
 
 val functionalTest = sourceSets.create("functionalTest")
 
@@ -60,7 +60,7 @@ val loom: Configuration by configurations.creating{
 
 dependencies {
     implementation(gradleApi())
-    loom("net.fabricmc:fabric-loom:1.7-SNAPSHOT")
+    loom("net.fabricmc:fabric-loom:1.8-SNAPSHOT")
     // https://mvnrepository.com/artifact/org.apache.commons/commons-compress
     implementation("org.apache.commons:commons-compress:1.26.1")
     implementation("com.google.code.gson:gson:2.10.1")

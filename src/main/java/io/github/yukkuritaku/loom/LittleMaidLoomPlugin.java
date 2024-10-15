@@ -18,8 +18,8 @@ import net.fabricmc.loom.util.ProcessUtil;
 import net.fabricmc.loom.util.download.DownloadException;
 import net.fabricmc.loom.util.gradle.GradleUtils;
 import net.fabricmc.loom.util.gradle.SourceSetHelper;
-import net.fabricmc.loom.util.service.ScopedSharedServiceManager;
-import net.fabricmc.loom.util.service.SharedServiceManager;
+import net.fabricmc.loom.util.service.ScopedServiceFactory;
+import net.fabricmc.loom.util.service.ServiceFactory;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
@@ -398,10 +398,12 @@ public class LittleMaidLoomPlugin implements BootstrappedPlugin {
         project.getTasks().named(a).configure(task -> task.finalizedBy(project.getTasks().named(b)));
     }
 
-    private void afterEvaluationWithService(Project project, Consumer<SharedServiceManager> consumer) {
+    private void afterEvaluationWithService(Project project, Consumer<ServiceFactory> consumer) {
         GradleUtils.afterSuccessfulEvaluation(project, () -> {
-            try (var serviceManager = new ScopedSharedServiceManager()) {
-                consumer.accept(serviceManager);
+            try (var serviceFactory = new ScopedServiceFactory()) {
+                consumer.accept(serviceFactory);
+            }catch(IOException e){
+                throw new UncheckedIOException(e);
             }
         });
     }
